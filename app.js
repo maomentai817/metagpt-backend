@@ -30,8 +30,8 @@ app.use(function (req, res, next) {
 app.use('/uploads', express.static('./uploads'))
 
 // 导入路由
-// const metagpt = require('./routes/metagpt')
-// app.use(metagpt)
+const metagpt = require('./routes/metagpt')
+app.use(metagpt)
 const metaConfig = require('./routes/metaConfig')
 app.use(metaConfig)
 // const role = require('./routes/role')
