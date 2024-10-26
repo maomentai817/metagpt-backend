@@ -30,12 +30,14 @@ app.use(function (req, res, next) {
 app.use('/uploads', express.static('./uploads'))
 
 // 导入路由
-// const metagpt = require('./routes/metagpt')
-// app.use(metagpt)
+const metagpt = require('./routes/metagpt')
+app.use(metagpt)
 const metaConfig = require('./routes/metaConfig')
 app.use(metaConfig)
 // const role = require('./routes/role')
 // app.use(role)
+const action = require('./routes/action')
+app.use(action)
 
 app.listen(3007, () => {
     console.log('api server running at http://127.0.0.1:3007');
