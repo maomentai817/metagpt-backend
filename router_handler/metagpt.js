@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { spawn } = require('child_process');
 
 // 读取项目日志信息
 exports.getProjectInfo = (req, res) => {
@@ -131,4 +132,37 @@ exports.getProjectFile = async (req, res) => {
     } catch (error) {
         return res.cc('发生错误', 500);
     }
+}
+
+
+exports.projectStart = async (req, res) => {
+    // 获取项目描述信息和项目名称
+    const projectDescription = req.query.description || '';
+    const projectName = req.query.projectName || '';
+
+    // 构建参数数组
+    const pythonArgs = [
+        projectDescription,
+        '--project-name',
+        projectName
+    ];
+
+    const pythonPath = path.join(__dirname, '../../metagpt/metagpt/software_company.py');
+    const pythonProcess = spawn('python', [pythonPath, ...pythonArgs]);
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+
+    pythonProcess.stdout.on('data', (data) => {
+        res.write(`data: ${data.toString()}\n\n`);
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        res.write(`data: ${data.toString()}\n\n`);
+    });
+
+    pythonProcess.on('close', (code) => {
+        res.write(`data: Script ended with code ${code}\n\n`);
+        res.end();
+    });
 }
