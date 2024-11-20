@@ -80,7 +80,6 @@ exports.getProjectFile = async (req, res) => {
     const projectPath = path.join(__dirname, '../../metagpt/logs/result');
 
     try {
-        // 获取该目录下以 name 开头的文件内容
         const files = await fs.promises.readdir(projectPath);
         const matchedFile = files.find(file => file.startsWith(name));
 
@@ -90,20 +89,16 @@ exports.getProjectFile = async (req, res) => {
 
         const filePath = path.join(projectPath, matchedFile);
         const fileContent = await fs.promises.readFile(filePath, 'utf8');
-
-        // 按 "Project Name" 分割文件内容为数组
         function parseProjectContent(content) {
-            const projectRegex = /Project Name:\s*(.*?),\s*Role:\s*(.*?),\s*Action:\s*(.*?),\s*File Path:\s*(.*?),\s*File Name:\s*(.*?),\s*Context:\s*([\s\S]*?)(?=\s*Project Name:|$)/g;
+            const projectRegex = /Project Name:\s*(.*?),\s*Role:\s*(.*?),\s*Action:\s*(.*?),\s*Time:\s*(.*?),\s*Action Duration:\s*(.*?)\s*Version:\s*(.*?),\s*File Path:\s*(.*?),\s*File Name:\s*(.*?),\s*Context:\s*([\s\S]*?)(?=\s*Project Name:|$)/g;
             const projects = [];
             let match;
 
             while ((match = projectRegex.exec(content)) !== null) {
-                // 抽离角色名和职业
                 const roleRegex = /(\w+)\((.*?)\)/;
                 const roleMatch = match[2].match(roleRegex);
 
-                // 获取 context 内容并处理为空的情况
-                const context = match[6] ? match[6].trim() : '暂无内容';
+                const context = match[9] ? match[9].trim() : '暂无内容';
 
                 const project = {
                     projectName: match[1],
@@ -111,9 +106,12 @@ exports.getProjectFile = async (req, res) => {
                     roleName: roleMatch ? roleMatch[1] : '',
                     roleJob: roleMatch ? roleMatch[2] : '',
                     action: match[3],
-                    filePath: match[4],
-                    fileName: match[5],
-                    fileType: match[5].split('.').pop(),
+                    time: match[4],
+                    actionDuration: match[5],
+                    version: match[6],
+                    filePath: match[7],
+                    fileName: match[8],
+                    fileType: match[8].split('.').pop(),
                     context: context,
                 };
                 projects.push(project);
@@ -122,17 +120,21 @@ exports.getProjectFile = async (req, res) => {
             return projects;
         }
 
+
+        const steps = parseProjectContent(fileContent);
+
         res.send({
             status: 200,
             data: {
                 name: name,
-                steps: parseProjectContent(fileContent)
+                steps: steps
             }
         });
     } catch (error) {
         return res.cc('发生错误', 500);
     }
-}
+};
+
 
 
 exports.projectStart = async (req, res) => {
