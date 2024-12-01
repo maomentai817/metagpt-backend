@@ -141,6 +141,8 @@ exports.projectStart = async (req, res) => {
     // 获取项目描述信息和项目名称
     const projectDescription = req.query.description || '';
     const projectName = req.query.projectName || '';
+    // env 名
+    const envName = req.query.envName || 'software_company';
 
     // 构建参数数组
     const pythonArgs = [
@@ -149,7 +151,7 @@ exports.projectStart = async (req, res) => {
         projectName
     ];
 
-    const pythonPath = path.join(__dirname, '../../metagpt/metagpt/software_company.py');
+    const pythonPath = path.join(__dirname, `../../metagpt/metagpt/env/${envName}.py`);
     const pythonProcess = spawn('python', [pythonPath, ...pythonArgs]);
 
     res.setHeader('Content-Type', 'text/event-stream');
@@ -167,4 +169,14 @@ exports.projectStart = async (req, res) => {
         res.write(`data: Script ended with code ${code}\n\n`);
         res.end();
     });
+}
+
+exports.getEnv = async (req, res) => { 
+    const projectPath = path.join(__dirname, '../../metagpt/metagpt/env');
+    // 读取文件夹下 py 文件名返回
+    const files = await fs.readdirSync(projectPath);
+    res.send({
+        status: 200,
+        data: files.map(envs => envs.slice(0, -3))
+    })
 }
