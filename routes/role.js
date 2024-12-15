@@ -11,4 +11,9 @@ router.post('/role/actions', role.getRoleActions)
 // 获取 角色信息代码
 router.post('/role/code', role.getRoleCode)
 
+// 创建新角色
+router.post('/role/create', role.createRole);
+// 创建角色 - code
+router.post('/role/code/create', role.createRoleCode);
+
 module.exports = router;

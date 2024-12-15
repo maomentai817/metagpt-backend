@@ -89,6 +89,7 @@ exports.getProjectFile = async (req, res) => {
 
         const filePath = path.join(projectPath, matchedFile);
         const fileContent = await fs.promises.readFile(filePath, 'utf8');
+        console.log(fileContent);
         function parseProjectContent(content) {
             const projectRegex = /Project Name:\s*(.*?),\s*Role:\s*(.*?),\s*Action:\s*(.*?),\s*Time:\s*(.*?),\s*Action Duration:\s*(.*?)\s*Version:\s*(.*?),\s*File Path:\s*(.*?),\s*File Name:\s*(.*?),\s*Context:\s*([\s\S]*?)(?=\s*Project Name:|$)/g;
             const projects = [];
