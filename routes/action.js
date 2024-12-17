@@ -9,4 +9,7 @@ router.get('/action/list', action.getActionList)
 // 获取 action 详情
 router.post('/action/info', action.getActionInfo)
 
+// 新建行为
+router.post('/action/code/create', action.createActionCode)
+
 module.exports = router;

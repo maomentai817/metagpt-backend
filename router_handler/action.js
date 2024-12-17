@@ -75,3 +75,33 @@ exports.getActionInfo = async (req, res) => {
     data: actionInfo
   });
 };
+function convertToSnakeCase(string) {
+  return string
+    .replace(/([A-Z])/g, '_$1')  // 找到大写字母并在前面加上下划线
+    .replace(/^_/, '')
+    .toLowerCase();  // 将整个字符串转为小写
+}
+exports.createActionCode = async (req, res) => { 
+  const { code, codeName } = req.body;
+  // 验证参数
+  if (!code || !codeName) {
+    return res.status(400).json({ error: 'Missing code or codeName' });
+  }
+
+  // 设置文件保存路径
+  const directoryPath = path.join(__dirname, '../../metagpt/metagpt/actions'); // 目录路径
+  const filePath = path.join(directoryPath, `${convertToSnakeCase(codeName)}.py`); // 文件路径
+
+  // 确保目录存在，不存在则创建
+  if (!fs.existsSync(directoryPath)) {
+    fs.mkdirSync(directoryPath, { recursive: true });
+  }
+
+  // 写入文件
+  fs.writeFile(filePath, code, 'utf8', (err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to save the file' });
+    }
+    res.status(200).json({ message: 'File saved successfully', filePath });
+  });
+}
